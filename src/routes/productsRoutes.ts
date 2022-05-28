@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { Product } from "../models/product";
-import { Container } from "../utils/container";
+import { ProductsContainer } from "../utils/productsContainer";
 
 
 const routerProducts = Router();
 let isAdmin:boolean=true;
-const productContainer = new Container('src/database/productsContainer.txt')
+const productContainer = new ProductsContainer('src/database/productsContainer.txt')
 
 routerProducts.get('/:id?',(req,res)=>{
     //muestro todos los productos disponibles o si me pasan id, solo ese prod
@@ -32,7 +32,7 @@ routerProducts.post('/',(req,res)=>{
         return res.status(401).json({error:401,description:`Route: ${req.url}, Method: ${req.method} Unauthorized`})
     }
     let body:Product = req.body;
-    productContainer.save(body).then(item =>{
+    productContainer.create(body).then(item =>{
         return res.json(item)
     })
    
@@ -46,11 +46,16 @@ routerProducts.put('/:id',(req,res)=>{
     let body:Product = req.body;
     if(id){
         //si pasa el id actualiza el producto y pasalo al json
-        
-        return res.json()
+        productContainer.update(body).then(item=>{
+            if(item){
+                return res.status(200).json(item);
+              }return res.status(500).json({error:`Ocurrió un error al actualizar el producto ${id}`})
+              
+        })
+        //return res.json()
     }else{
         //si no lo encontras mandale un 404
-        return res.json()
+       // return res.json()
     }
     
 })

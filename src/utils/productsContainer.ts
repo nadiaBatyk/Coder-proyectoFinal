@@ -1,16 +1,16 @@
 import * as fs from "fs";
-import { Cart } from "../models/cart";
+
 import { Product } from "../models/product";
 
-export class Container {
+export class ProductsContainer {
   nombreArchivo: string;
   constructor(nombreArchivo: string) {
     this.nombreArchivo = nombreArchivo;
   }
-  async save(objeto: Product | Cart) {
+  async create(objeto: Product) {
     try {
       const archivo = await fs.promises.readFile(this.nombreArchivo, "utf-8");
-      let contenido:Array<Product|Cart> = JSON.parse(archivo);
+      let contenido:Array<Product> = JSON.parse(archivo);
       contenido.length
         ? (objeto["id"] = contenido[contenido.length - 1].id + 1)
         : (objeto["id"] = 1);
@@ -71,8 +71,8 @@ export class Container {
     }
   }
   async getById(id: number) {
-    let contenido:Array<Product|Cart> = await this.getAll();
-    let itemEncontrado = contenido.find((item: any) => {
+    let contenido:Array<Product> = await this.getAll();
+    let itemEncontrado = contenido.find((item: Product) => {
       return item.id === id;
     });
     return itemEncontrado ? itemEncontrado : null;
@@ -80,8 +80,8 @@ export class Container {
 
   async deleteById(id: number) {
     try {
-      let contenido :Array<Product|Cart> = await this.getAll();
-      let indexItem:number = contenido.findIndex((item: any) => {
+      let contenido :Array<Product> = await this.getAll();
+      let indexItem:number = contenido.findIndex((item: Product) => {
         return item.id === id;
       });
       contenido.splice(indexItem, 1);
