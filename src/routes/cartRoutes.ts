@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Cart } from "../models/cart";
 import { Product } from "../models/product";
-import { CartContainer } from "../utils/cartContainer";
+import { CartContainer } from "../functions/cartContainer";
 
 const routerCart = Router();
 const cartContainer = new CartContainer('src/database/cartContainer.txt')

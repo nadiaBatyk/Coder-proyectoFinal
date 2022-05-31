@@ -1,77 +1,16 @@
 import { Router } from "express";
-import { Product } from "../models/product";
-import { ProductsContainer } from "../utils/productsContainer";
-
+import productsController from "../controllers/productsController";
 
 const routerProducts = Router();
-let isAdmin:boolean=true;
-const productContainer = new ProductsContainer('src/database/productsContainer.txt')
 
-routerProducts.get('/:id?',(req,res)=>{
-    //muestro todos los productos disponibles o si me pasan id, solo ese prod
-    let {id} = req.params;
-    if(id){
-        productContainer.getById(parseInt(id)).then(product=>{
-            if(product == null){
-                return res.status(404).json({error:'Product not found'})
-            }
-            return res.json(product)
-        })
-       
-    }else{
-        productContainer.getAll().then(lista =>{
-            return res.json(lista)
-        })
-        //pasa todo el array de productos en el json
-        
-    }
-    
-})
-routerProducts.post('/',(req,res)=>{
-    if(!isAdmin){
-        return res.status(401).json({error:401,description:`Route: ${req.url}, Method: ${req.method} Unauthorized`})
-    }
-    let body:Product = req.body;
-    productContainer.create(body).then(item =>{
-        return res.json(item)
-    })
-   
-})
+routerProducts.route('/')
+.get(productsController.getProducts)
+.post(productsController.createProduct)
 
-routerProducts.put('/:id',(req,res)=>{
-    if(!isAdmin){
-        return res.status(401).json({error:401,description:`Route: ${req.url}, Method: ${req.method} Unauthorized`})
-    }
-    let {id} = req.params;
-    let body:Product = req.body;
-    if(id){
-        //si pasa el id actualiza el producto y pasalo al json
-        productContainer.update(body).then(item=>{
-            if(item){
-                return res.status(200).json(item);
-              }return res.status(500).json({error:`Ocurrió un error al actualizar el producto ${id}`})
-              
-        })
-        //return res.json()
-    }else{
-        //si no lo encontras mandale un 404
-       // return res.json()
-    }
-    
-})
-routerProducts.delete('/:id',(req,res)=>{
-    if(!isAdmin){
-        return res.status(401).json({error:401,description:`Route: ${req.url}, Method: ${req.method} Unauthorized`})
-    }
-    let {id} = req.params;
-    if(id){
-        //si pasa el id borra el producto y pasalo al json
-        
-        return res.json()
-    }else{
-        //si no lo encontras mandale un 404
-        return res.json()
-    }
-    
-})
-export {routerProducts}
+routerProducts.route('/:id')
+.get(productsController.getProducts)
+.put(productsController.updateProduct)
+.delete(productsController.deleteProduct);
+
+
+export default routerProducts;
