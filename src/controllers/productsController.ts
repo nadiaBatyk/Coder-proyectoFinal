@@ -14,7 +14,10 @@ function getProducts(req, res, next) {
       (product) => {
         return res.json(product);
       },
-      (e) => next(e)
+      (e) => {
+        console.log(e);
+        return next(e);
+      }
     );
   } else {
     productContainer.getAll().then(

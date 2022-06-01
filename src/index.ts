@@ -10,6 +10,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/productos", routerProducts);
 app.use("/api/carrito", routerCart);
 app.use((err, req, res, next) => {
+  console.log(err)
   res.status(err.status).json({ status: err.status, message: err.message });
 });
 
