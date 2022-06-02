@@ -50,7 +50,11 @@ export class ProductsContainer {
         (producto) => producto.id === objeto.id
       );
       if (indexProducto === -1) {
-        const err = new ErrorCustom(`Item no encontrado ${objeto.id}`, 404, "Not found");
+        const err = new ErrorCustom(
+          `Item no encontrado ${objeto.id}`,
+          404,
+          "Not found"
+        );
         throw err;
       }
 
@@ -63,9 +67,9 @@ export class ProductsContainer {
       console.log(`Se actualizo el producto: ${objeto.id}`);
       return objeto.id;
     } catch (error: any) {
-      if(error instanceof ErrorCustom){
-        throw error
-      }else{
+      if (error instanceof ErrorCustom) {
+        throw error;
+      } else {
         const err = new ErrorCustom(error, 500, "Error");
         throw err;
       }
@@ -75,21 +79,30 @@ export class ProductsContainer {
     try {
       const archivo = await fs.promises.readFile(this.nombreArchivo, "utf-8");
       return JSON.parse(archivo);
-    } catch (error:any) {
+    } catch (error: any) {
       const err = new ErrorCustom(error, 500, "Error");
-        throw err;
+      throw err;
     }
   }
   async getById(id: number) {
-    let contenido: Array<Product> = await this.getAll();
-    let itemEncontrado = contenido.find((item: Product) => {
-      return item.id === id;
-    });
-    if (itemEncontrado) {
-      return itemEncontrado;
-    } else {
-      const err = new ErrorCustom("Item no encontrado", 404, "Not found");
-      throw err;
+    try {
+      let contenido: Array<Product> = await this.getAll();
+      let itemEncontrado = contenido.find((item: Product) => {
+        return item.id === id;
+      });
+      if (itemEncontrado) {
+        return itemEncontrado;
+      } else {
+        const err = new ErrorCustom("Item no encontrado", 404, "Not found");
+        throw err;
+      }
+    } catch (error: any) {
+      if (error instanceof ErrorCustom) {
+        throw error;
+      } else {
+        const err = new ErrorCustom(error, 500, "Error");
+        throw err;
+      }
     }
   }
 
@@ -100,7 +113,7 @@ export class ProductsContainer {
         return item.id === id;
       });
       contenido.splice(indexItem, 1);
-      if(indexItem === -1){
+      if (indexItem === -1) {
         const err = new ErrorCustom("Item no encontrado", 404, "Not found");
         throw err;
       }
@@ -110,15 +123,14 @@ export class ProductsContainer {
         "utf-8"
       );
       console.log(`Se eliminó el producto: ${id}`);
-      return `Se eliminó el producto`
-    } catch (error:any) {
-      if(error instanceof ErrorCustom){
-        throw error
-      }else{
+      return `Se eliminó el producto`;
+    } catch (error: any) {
+      if (error instanceof ErrorCustom) {
+        throw error;
+      } else {
         const err = new ErrorCustom(error, 500, "Error");
         throw err;
       }
-      
     }
   }
 }

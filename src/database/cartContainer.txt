@@ -6,23 +6,17 @@
   },
   {
     "timestamp": "Wed May 27 2022 23:10:40",
-    "products": [
-      {
-        "timestamp": "Fri May 27 2022 23:10:40",
-        "name": "Mochila",
-        "description": "super mochis",
-        "code": "mochi222",
-        "url": "www.mochila.com",
-        "price": 7899,
-        "stock": 5,
-        "id": 2
-      }
-    ],
-    "id": 2
-  },
-  {
-    "timestamp": "Wed May 27 2022 23:10:40",
     "products": [],
     "id": 3
+  },
+  {
+    "timestamp": "Wed Jun 2 2022 23:10:40",
+    "products": [],
+    "id": 4
+  },
+  {
+    "timestamp": "Wed Jun 2 2022 23:10:40",
+    "products": [],
+    "id": 5
   }
 ]

@@ -14,9 +14,9 @@ function getProducts(req, res, next) {
       (product) => {
         return res.json(product);
       },
-      (e) => {
-        console.log(e);
-        return next(e);
+      (error) => {
+        console.log(error);
+        return next(error);
       }
     );
   } else {
@@ -24,7 +24,7 @@ function getProducts(req, res, next) {
       (lista) => {
         return res.json(lista);
       },
-      (e) => next(e)
+      (error) => next(error)
     );
     //pasa todo el array de productos en el json
   }
@@ -41,7 +41,7 @@ function createProduct(req, res, next) {
     (item) => {
       return res.json(item);
     },
-    (e) => next(e)
+    (error) => next(error)
   );
 }
 
@@ -60,7 +60,7 @@ function updateProduct(req, res, next) {
       (item) => {
         return res.status(200).json(item);
       },
-      (e) => next(e)
+      (error) => next(error)
     );
   }
 }
@@ -78,7 +78,7 @@ function deleteProduct(req, res, next) {
       (item) => {
         return res.status(200).json(item);
       },
-      (e) => next(e)
+      (error) => next(error)
     );
   }
 }

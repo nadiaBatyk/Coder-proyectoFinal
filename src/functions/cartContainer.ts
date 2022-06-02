@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import { Cart } from "../models/cart";
+import ErrorCustom from "../models/error";
 import { Product } from "../models/product";
 
 export class CartContainer {
@@ -35,18 +36,31 @@ export class CartContainer {
         console.log(`Se agregó el carrito: ${carrito.id}`);
         return carrito.id;
       } else {
-        return error;
+        const err = new ErrorCustom(error, 500, "Error");
+        throw err;
       }
     }
   }
   async addProductToCart(product: Product, idCart: number) {
-    let contenido: Array<Cart> = await this.getAllCarts();
-    let carritoIndex = contenido.findIndex((item: Cart) => {
-      return item.id === idCart;
-    });
-    if (carritoIndex > -1) {
+    try {
+      let contenido: Array<Cart> = await this.getAllCarts();
+      let carritoIndex = contenido.findIndex((item: Cart) => {
+        return item.id === idCart;
+      });
+      if (carritoIndex === -1) {
+        const err = new ErrorCustom(
+          `Carrito no encontrado ${idCart}`,
+          404,
+          "Not found"
+        );
+        throw err;
+      }
+
       contenido[carritoIndex].products.length
-        ? (product["id"] = contenido[carritoIndex].products[contenido[carritoIndex].products.length - 1].id + 1)
+        ? (product["id"] =
+            contenido[carritoIndex].products[
+              contenido[carritoIndex].products.length - 1
+            ].id + 1)
         : (product["id"] = 1);
       contenido[carritoIndex].products.push(product);
       await fs.promises.writeFile(
@@ -57,9 +71,14 @@ export class CartContainer {
       console.log(
         `Se agregó el producto: ${product.id} al carrito ${contenido[carritoIndex].id} `
       );
-      return contenido[carritoIndex];
-    } else {
-      return null;
+      return contenido[carritoIndex].id;
+    } catch (error: any) {
+      if (error instanceof ErrorCustom) {
+        throw error;
+      } else {
+        const err = new ErrorCustom(error, 500, "Error");
+        throw err;
+      }
     }
   }
 
@@ -67,23 +86,52 @@ export class CartContainer {
     try {
       const archivo = await fs.promises.readFile(this.nombreArchivo, "utf-8");
       return JSON.parse(archivo);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      const err = new ErrorCustom(error, 500, "Error");
+      throw err;
     }
   }
   async getCartById(id: number) {
-    let contenido: Array<Cart> = await this.getAllCarts();
-    let itemEncontrado = contenido.find((item: Cart) => {
-      return item.id === id;
-    });
-    return itemEncontrado ? itemEncontrado : null;
+    try {
+      let contenido: Array<Cart> = await this.getAllCarts();
+      let itemEncontrado = contenido.find((item: Cart) => {
+        return item.id === id;
+      });
+      if (itemEncontrado) {
+        return itemEncontrado;
+      } else {
+        const err = new ErrorCustom("Carrito no encontrado", 404, "Not found");
+        throw err;
+      }
+    } catch (error: any) {
+      if (error instanceof ErrorCustom) {
+        throw error;
+      } else {
+        const err = new ErrorCustom(error, 500, "Error");
+        throw err;
+      }
+    }
   }
   async getProductsInCart(id: number) {
-    let contenido: Array<Cart> = await this.getAllCarts();
-    let itemEncontrado = contenido.find((item: Cart) => {
-      return item.id === id;
-    });
-    return itemEncontrado ? itemEncontrado.products : null;
+    try {
+      let contenido: Array<Cart> = await this.getAllCarts();
+      let itemEncontrado = contenido.find((item: Cart) => {
+        return item.id === id;
+      });
+      if (itemEncontrado) {
+        return itemEncontrado?.products;
+      } else {
+        const err = new ErrorCustom("Carrito no encontrado", 404, "Not found");
+        throw err;
+      }
+    } catch (error: any) {
+      if (error instanceof ErrorCustom) {
+        throw error;
+      } else {
+        const err = new ErrorCustom(error, 500, "Error");
+        throw err;
+      }
+    }
   }
 
   async deleteCartById(id: number) {
@@ -93,17 +141,25 @@ export class CartContainer {
         return item.id === id;
       });
       contenido.splice(indexItem, 1);
-
+      if (indexItem === -1) {
+        const err = new ErrorCustom("Carrito no encontrado", 404, "Not found");
+        throw err;
+      }
       await fs.promises.writeFile(
         this.nombreArchivo,
         JSON.stringify(contenido, null, 2),
         "utf-8"
       );
-      //  this.updateFile(contenido).then(res=>console.log(res))
+
       console.log(`Se eliminó el carrito: ${id}`);
-      return id
-    } catch (error) {
-      return error;
+      return `Se eliminó el carrito`;
+    } catch (error: any) {
+      if (error instanceof ErrorCustom) {
+        throw error;
+      } else {
+        const err = new ErrorCustom(error, 500, "Error");
+        throw err;
+      }
     }
   }
   async deleteProductFromCart(idProduct: number, idCart: number) {
@@ -112,11 +168,24 @@ export class CartContainer {
       let indexCarrito: number = contenido.findIndex((item: Cart) => {
         return item.id === idCart;
       });
+      if (indexCarrito === -1) {
+        const err = new ErrorCustom("Carrito no encontrado", 404, "Not found");
+        throw err;
+      }
+
       let indexProduct = contenido[indexCarrito].products.findIndex(
         (item: Product) => {
           return item.id === idProduct;
         }
       );
+      if (indexProduct === -1) {
+        const err = new ErrorCustom(
+          "Producto no encontrado en el carrito",
+          404,
+          "Not found"
+        );
+        throw err;
+      }
       contenido[indexCarrito].products.splice(indexProduct, 1);
 
       await fs.promises.writeFile(
@@ -124,20 +193,16 @@ export class CartContainer {
         JSON.stringify(contenido, null, 2),
         "utf-8"
       );
-      //this.updateFile(contenido).then(res=>console.log(res))
-      console.log(
-        `Se eliminó el producto: ${idProduct} del carrito ${idCart} `
-      );
-      return idProduct
-    } catch (error) {
-      return error;
+      
+      return `Se eliminó el producto: ${idProduct} del carrito ${idCart} `
+      
+    } catch (error: any) {
+      if (error instanceof ErrorCustom) {
+        throw error;
+      } else {
+        const err = new ErrorCustom(error, 500, "Error");
+        throw err;
+      }
     }
-  }
-  async updateFile(content: Array<Cart>) {
-    await fs.promises.writeFile(
-      this.nombreArchivo,
-      JSON.stringify(content, null, 2),
-      "utf-8"
-    );
   }
 }
